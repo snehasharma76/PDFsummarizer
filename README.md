@@ -53,7 +53,7 @@ Then edit the `.env` file and add your OpenAI API key.
 
 1. Start the application:
 ```bash
-python app.py
+python3 app.py
 ```
 
 2. Open the provided URL in your web browser.

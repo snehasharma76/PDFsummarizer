@@ -43,7 +43,7 @@ def create_interface():
     # Create Gradio interface
     with gr.Blocks(title="PDF Summarizer") as interface:
         gr.Markdown("# PDF Document Summarizer")
-        gr.Markdown("Upload a PDF document and get a concise summary.")
+        gr.Markdown("Upload a PDF document and get a concise summary with real-time progress updates.")
         
         with gr.Row():
             with gr.Column(scale=1):
@@ -54,19 +54,59 @@ def create_interface():
                     type="password"
                 )
                 pdf_input = gr.File(label="Upload PDF")
-                submit_button = gr.Button("Process PDF")
+                
+                with gr.Row():
+                    submit_button = gr.Button("Process PDF", variant="primary")
+                    clear_button = gr.Button("Clear", variant="secondary")
+                
+                # Status indicator
+                status_indicator = gr.Markdown("Ready to process PDF.")
             
             with gr.Column(scale=2):
-                text_output = gr.Textbox(label="Extracted Text", lines=10)
-                summary_output = gr.Textbox(label="Summary", lines=10)
+                with gr.Tabs():
+                    with gr.TabItem("Summary"):
+                        summary_output = gr.Textbox(label="Summary", lines=12)
+                    with gr.TabItem("Extracted Text"):
+                        text_output = gr.Textbox(label="Extracted Text", lines=12)
         
+        # Define function to update status after processing
+        def update_status_on_completion(text, summary):
+            # Only mark as complete if we didn't get an error
+            if summary and not summary.startswith("An error occurred") and not summary.startswith("Error"):
+                return "Processing complete! Summary generated successfully."
+            elif summary:
+                return f"Error: {summary}"
+            else:
+                return "Processing failed. Please check your inputs and try again."
+        
+        # Event handlers
         submit_button.click(
+            fn=lambda: "Processing PDF... Please wait",
+            inputs=None,
+            outputs=status_indicator
+        ).then(
             fn=process_pdf,
             inputs=[pdf_input, api_key_input],
-            outputs=[text_output, summary_output]
+            outputs=[text_output, summary_output],
+            show_progress="full"
+        ).then(
+            fn=update_status_on_completion,
+            inputs=[text_output, summary_output],
+            outputs=status_indicator
+        )
+        
+        # Clear button functionality
+        def clear_outputs():
+            return "", "", "Ready to process PDF."
+        
+        clear_button.click(
+            fn=clear_outputs,
+            inputs=None,
+            outputs=[text_output, summary_output, status_indicator]
         )
     
     return interface
+
 
 if __name__ == "__main__":
     # Create and launch the interface

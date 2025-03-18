@@ -26,7 +26,7 @@ def extract_text_from_pdf(pdf_path, progress_callback=None):
 
             # Report the number of pages if progress callback provided
             if progress_callback:
-                progress_callback(0.15, desc=f"PDF loaded: {num_pages} pages detected")
+                progress_callback(0.15)
             
             # Extract text from each page
             for page_num in range(num_pages):
@@ -34,20 +34,20 @@ def extract_text_from_pdf(pdf_path, progress_callback=None):
                 if progress_callback and num_pages > 1:
                     # Scale progress from 0.15 to 0.5 based on page progress
                     page_progress = 0.15 + (0.35 * (page_num / num_pages))
-                    progress_callback(page_progress, desc=f"Extracting page {page_num+1}/{num_pages}")
+                    progress_callback(page_progress)
                 
                 page = pdf_reader.pages[page_num]
                 text += page.extract_text() + "\n"
                 
         # Final progress update for extraction
         if progress_callback:
-            progress_callback(0.5, desc="Text extraction complete")
+            progress_callback(0.5)
             
         return text
     
     except Exception as e:
         if progress_callback:
-            progress_callback(0.5, desc="Error during text extraction")
+            progress_callback(0.5)
         raise Exception(f"An error occurred while extracting text from {pdf_path}: {str(e)}")
 
 

@@ -99,12 +99,12 @@ class TextSummarizer:
             # Check if text is empty
             if not text or len(text.strip()) < 100:
                 if progress_callback:
-                    progress_callback(0.95, desc="Text too short to summarize")
+                    progress_callback(0.95)
                 return "The extracted text is too short or empty to generate a meaningful summary."
                 
             # Update progress if callback provided
             if progress_callback:
-                progress_callback(0.6, desc="Splitting text into chunks...")
+                progress_callback(0.6)
                 
             # Split the text into chunks
             text_splitter = RecursiveCharacterTextSplitter(
@@ -118,12 +118,12 @@ class TextSummarizer:
             
             if total_chunks == 0:
                 if progress_callback:
-                    progress_callback(0.95, desc="No valid content found")
+                    progress_callback(0.95)
                 return "No valid content found to summarize."
             
             # Update progress
             if progress_callback:
-                progress_callback(0.65, desc=f"Processing {total_chunks} text chunks...")
+                progress_callback(0.65)
             
             # Summarize each chunk with progress updates
             chunk_summaries = []
@@ -135,7 +135,7 @@ class TextSummarizer:
                 # Update progress for each chunk
                 if progress_callback and total_chunks > 1:
                     chunk_progress = 0.65 + (0.25 * (i / total_chunks))
-                    progress_callback(chunk_progress, desc=f"Summarizing chunk {i+1}/{total_chunks}...")
+                    progress_callback(chunk_progress)
                 
                 try:
                     summary = self.summarize_text(chunk)
@@ -149,20 +149,20 @@ class TextSummarizer:
             # Check if we have any valid summaries
             if not chunk_summaries:
                 if progress_callback:
-                    progress_callback(0.95, desc="Failed to generate summaries")
+                    progress_callback(0.95)
                 return "Unable to generate summary. Please check your API key and try again."
                 
             # If we have multiple summaries, combine them
             if len(chunk_summaries) > 1:
                 if progress_callback:
-                    progress_callback(0.9, desc="Creating final summary from chunks...")
+                    progress_callback(0.9)
                     
                 combined_summaries = "\n\n".join(chunk_summaries)
                 try:
                     final_summary = self.summarize_text(combined_summaries)
                     
                     if progress_callback:
-                        progress_callback(0.95, desc="Final summary complete")
+                        progress_callback(0.95)
                         
                     return final_summary
                 except Exception as final_error:
@@ -172,15 +172,15 @@ class TextSummarizer:
                     
             elif len(chunk_summaries) == 1:
                 if progress_callback:
-                    progress_callback(0.95, desc="Summary complete")
+                    progress_callback(0.95)
                 return chunk_summaries[0]
             else:
                 if progress_callback:
-                    progress_callback(0.95, desc="No content to summarize")
+                    progress_callback(0.95)
                 return "No text to summarize."
                 
         except Exception as e:
             print(f"Error in summarize_long_text: {str(e)}")
             if progress_callback:
-                progress_callback(0.95, desc="Error during summarization process")
+                progress_callback(0.95)
             return f"An error occurred during summarization: {str(e)}"
